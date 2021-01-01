@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jan 2 11:50:28 2021
+
+@author: MOHAMMAD SHARIQUE AHMAD
+sharique.ahmad@ieee.org
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+import numpy.random as nr
+from scipy.stats import norm
+fig, ax = plt.subplots()
+#plt.style.use('dark_background')
+
+blockLength = 100000000;  #number of symbols
+SNRCalcDB = np.arange(1.0,14.1);
+BER = np.zeros(SNRCalcDB.size);
+SNR = 10**(SNRCalcDB/10);
+Sym = 2*nr.randint(2,size=blockLength)-1;
+
+noise = nr.normal(0.0,1.0,blockLength);
+for K in range(SNRCalcDB.size):
+    TxBits = np.sqrt(SNR[K])*Sym;
+    RxBits = TxBits + noise;
+     #If the rcvr bit >0 we are conveting =1 
+     #using logical stateement and 1 and -1 will be +1
+    DecBits = 2*(RxBits>0)-1;  
+    BER[K]=BER[K] + np.sum(DecBits != Sym);
+
+    
+BER = BER/blockLength;
+plt.yscale('log')
+plt.plot(SNRCalcDB, BER,'g-');
+plt.plot(SNRCalcDB, 1-norm.cdf(np.sqrt(SNR)),'ro');
+#plt.grid(1,which='both')
+plt.legend(["Simulation","Approx"], loc ="best");
+plt.suptitle('BER for AWGN Channel by Sharique')
+plt.xlabel('SNR (dB) ----->')
+plt.ylabel('BER ------>') 
+fig.text(0.95, 0.05, 'Copyright Sharique',
+         fontsize=21, color='white',
+         ha='right', va='bottom', alpha=0.5)
